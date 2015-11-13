@@ -1,0 +1,28 @@
+### Java ###
+*.class
+
+### Maven ###
+target/
+
+### IntelliJ ###
+.idea
+*.iml
+
+### Eclipse ###
+.project
+.settings
+.metadata
+.classpath
+
+### MacOS ###
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+
+### Emacs ###
+\#*
+.\#*
+
+### Logging ###
+*.log
