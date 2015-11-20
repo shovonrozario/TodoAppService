@@ -45,12 +45,9 @@ public class TodoResource {
 		
 		List<Todo> pojoTodos = new ArrayList<Todo>();
 
-		for (com.todo.persistence.domain.Todo todo : domainTodos) {
-			Todo tmpTodo = new Todo();
-			tmpTodo.setId(todo.getId());
-			tmpTodo.setTitle(todo.getTitle());
-			tmpTodo.setDone(todo.isDone());
-			pojoTodos.add(tmpTodo);
+		for (com.todo.persistence.domain.Todo domainTodo : domainTodos) {
+			Todo pojoTodo = getPojoTodo(domainTodo);
+			pojoTodos.add(pojoTodo);
 		}
 		
 		return pojoTodos;
