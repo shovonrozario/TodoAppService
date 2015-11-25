@@ -1,6 +1,6 @@
-package com.todo.constants;
+package com.todo.properties;
 
-public class DatabaseConstants {
+public class DatabaseProperties {
 	public static final String DRIVER = "com.mysql.jdbc.Driver";
 	public static final String URL = "jdbc:mysql://localhost:3306/todo_service";
 	public static final String USER = "root";

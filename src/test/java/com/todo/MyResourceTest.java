@@ -9,6 +9,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.todo.properties.WebServiceProperties;
+
 import static org.junit.Assert.assertEquals;
 
 public class MyResourceTest {
@@ -19,7 +21,7 @@ public class MyResourceTest {
     @Before
     public void setUp() throws Exception {
         // start the server
-        server = Main.startServer();
+        server = Main.startServer(WebServiceProperties.SERVICE_URI);
         // create the client
         Client c = ClientBuilder.newClient();
 
@@ -29,7 +31,7 @@ public class MyResourceTest {
         // --
         // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
 
-        target = c.target(Main.BASE_URI);
+        target = c.target(WebServiceProperties.SERVICE_URI);
     }
 
     @After

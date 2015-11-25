@@ -1,52 +1,64 @@
 package com.todo;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import java.io.IOException;
+import java.net.URI;
+
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import java.io.IOException;
-import java.net.URI;
+import com.todo.log.Logger;
+import com.todo.log.LoggerConfigurator;
+import com.todo.log.LoggerFactory;
+import com.todo.properties.WebServiceProperties;
 
 /**
  * Main class.
  *
  */
 public class Main {
-    // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://localhost:8080/todo-app-service/";
-    
-    private static final Logger LOGGER = Logger.getLogger(Main.class);
-    
 
-    /**
-     * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
-     * @return Grizzly HTTP server.
-     */
-    public static HttpServer startServer() {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in com.todo package
-        final ResourceConfig rc = new ResourceConfig().packages("com.todo.service.resource");
+	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-        // create and start a new instance of grizzly http server
-        // exposing the Jersey application at BASE_URI
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
-    }
+	public static void main(String[] args) throws IOException {
+		LoggerConfigurator.configure();
 
-    /**
-     * Main method.
-     * @param args
-     * @throws IOException
-     */
-    public static void main(String[] args) throws IOException {
-    	BasicConfigurator.configure();
-    	LOGGER.info("Entering TODO Web Service");
-    	
-        final HttpServer server = startServer();
-        System.out.println(String.format("Jersey app started with WADL available at "
-                + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
-        System.in.read();
-        server.stop();
-    }
+		final HttpServer server = startServer(WebServiceProperties.SERVICE_URI);
+
+		LOGGER.log(String
+				.format("Web service started running with WADL available at %sapplication.wadl\nHit enter to stop it...",
+						WebServiceProperties.SERVICE_URI));
+
+		stopServerOnKeyPress(server);
+	}
+
+	/**
+	 * Starts Grizzly HTTP server exposing JAX-RS resources defined in this
+	 * application.
+	 * 
+	 * @return Grizzly HTTP server.
+	 */
+	public static HttpServer startServer(String serviceUrl) {
+		// create a resource config that scans for JAX-RS resources and
+		// providers in com.todo package
+		final ResourceConfig rc = new ResourceConfig()
+				.packages(WebServiceProperties.JERSEY_RESOURCE_PACKAGE);
+
+		// create and start a new instance of grizzly http server exposing the
+		// Jersey application at BASE_URI
+		return GrizzlyHttpServerFactory.createHttpServer(
+				URI.create(serviceUrl), rc);
+	}
+
+	/**
+	 * Stops the server on key press by user
+	 * 
+	 * @param server
+	 * @throws IOException
+	 */
+	private static void stopServerOnKeyPress(HttpServer server)
+			throws IOException {
+		System.in.read();
+		server.shutdownNow();
+	}
 }

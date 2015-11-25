@@ -15,9 +15,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.log4j.Logger;
 import org.eclipse.persistence.oxm.JSONWithPadding;
 
+import com.todo.log.Logger;
+import com.todo.log.LoggerFactory;
 import com.todo.persistence.dao.TodoDao;
 import com.todo.service.pojo.Todo;
 
@@ -27,14 +28,13 @@ import com.todo.service.pojo.Todo;
 @Singleton
 @Path("todo")
 public class TodoResource {
-	private static final Logger LOGGER = Logger.getLogger(TodoResource.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TodoResource.class);
 	
 	private TodoDao todoDao = new TodoDao();
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public JSONWithPadding<List<Todo>> getTodos(@QueryParam("callback") String callback) {
-		
 		List<com.todo.persistence.domain.Todo> domainTodos = todoDao.getAll();
 		List<Todo> pojoTodos = getPojoTodos(domainTodos);
 		
@@ -116,10 +116,6 @@ public class TodoResource {
 		domainTodo.setDone(pojoTodo.isDone());
 		
 		return domainTodo;
-	}
-	
-	private static void consoleLog(String message) {
-		LOGGER.debug("TodoResource: " + message);
 	}
 	
 }
