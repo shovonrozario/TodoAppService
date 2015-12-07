@@ -4,6 +4,9 @@
 ### Maven ###
 target/
 
+### Log ###
+logs/
+
 ### IntelliJ ###
 .idea
 *.iml

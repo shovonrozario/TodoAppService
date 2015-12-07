@@ -1,9 +1,8 @@
-package com.todo.service.resource;
+package com.todo.service.resource.jsonp;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -14,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.eclipse.persistence.oxm.JSONWithPadding;
 
@@ -25,15 +25,14 @@ import com.todo.service.pojo.Todo;
 /**
  * Root resource (exposed at "todos" path)
  */
-@Singleton
-@Path("todo")
+@Path("jsonp/todo")
 public class TodoResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TodoResource.class);
 	
 	private TodoDao todoDao = new TodoDao();
 	
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces({ "application/x-javascript"})
 	public JSONWithPadding<List<Todo>> getTodos(@QueryParam("callback") String callback) {
 		List<com.todo.persistence.domain.Todo> domainTodos = todoDao.getAll();
 		List<Todo> pojoTodos = getPojoTodos(domainTodos);
@@ -54,48 +53,54 @@ public class TodoResource {
 	}
 	
 	@GET
+	@Produces({ "application/x-javascript"})
 	@Path("/{id}")
-	@Produces(MediaType.APPLICATION_JSON)
 	public JSONWithPadding<Todo> getTodo(@PathParam("id") Integer id, @QueryParam("callback") String callback) {
 		
 		com.todo.persistence.domain.Todo domainTodo = todoDao.get(id);
 		Todo pojoTodo = getPojoTodo(domainTodo);
 		
-		return new JSONWithPadding<Todo>(pojoTodo);
+		return new JSONWithPadding<Todo>(pojoTodo, callback);
 	}	
 	
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
-	public String insertTodo(Todo pojoTodo) {
+	public Response insertTodo(Todo pojoTodo) {
 		
 		com.todo.persistence.domain.Todo domainTodo = getDomainTodo(pojoTodo);
-		Boolean result = todoDao.insert(domainTodo);
+		Boolean executionSuccesful = todoDao.insert(domainTodo);
 		
-		return result.toString();
+		if(executionSuccesful)
+			return Response.noContent().build();
+		
+		return Response.status(404).build();
 	}
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/{id}")
-	public String updateTodo(@PathParam("id") Integer id, Todo pojoTodo) {
+	public Response updateTodo(@PathParam("id") Integer id, Todo pojoTodo) {
 		
 		com.todo.persistence.domain.Todo domainTodo = getDomainTodo(pojoTodo);
-		Boolean result = todoDao.update(domainTodo);
+		Boolean executionSuccesful = todoDao.update(domainTodo);		
 		
-		return result.toString();
+		if(executionSuccesful)
+			return Response.noContent().build();
+		
+		return Response.status(404).build();
 	}
 	
 	@DELETE
 	@Path("/{id}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String deleteTodo(@PathParam("id") Integer id) {
+	public Response deleteTodo(@PathParam("id") Integer id) {
 		
-		Boolean result = todoDao.delete(id);
+		Boolean executionSuccesful = todoDao.delete(id);
 		
-		return result.toString();
+		if(executionSuccesful)
+			return Response.noContent().build();
+		
+		return Response.status(404).build();
 	}
 	
 	private Todo getPojoTodo(com.todo.persistence.domain.Todo domainTodo) {
